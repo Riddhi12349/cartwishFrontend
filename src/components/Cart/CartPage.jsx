@@ -14,7 +14,7 @@ const CartPage = () => {
   // console.log(cart);
 
   const [subTotal, setsubTotal] = useState(0);
-  const user = useContext(UserContext);
+  const { user } = useContext(UserContext);
   const { cart, removeFromCart, updateCart, setCart } = useContext(CartContext);
   // console.log(user);
 
