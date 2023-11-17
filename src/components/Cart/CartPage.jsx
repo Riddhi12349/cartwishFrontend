@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
+import config from "../../config.json";
 import UserContext from "../Contexts/UserContext";
 import CartContext from "../Contexts/CartContext";
 import "./CartPage.css";
@@ -8,7 +9,7 @@ import QuantityInput from "../Products/SingleProduct/QuantityInput";
 import remove from "../../assets/remove.png";
 import { toast } from "react-toastify";
 import { checkoutAPI } from "../services/orderServices";
-import config from "../../config.json";
+
 const CartPage = () => {
   // console.log(cart);
 
