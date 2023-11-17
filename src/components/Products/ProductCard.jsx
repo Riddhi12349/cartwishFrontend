@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import config from "../config.json";
+import config from "../../config.json";
 
 import CartContext from "../Contexts/CartContext";
 import UserContext from "../Contexts/UserContext";
