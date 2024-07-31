@@ -1,63 +1,53 @@
-import { useState } from "react";
 import "./SignupPage.css";
 import user from "../../assets/user.webp";
-import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { signup } from "../services/useServices";
-import { useNavigate } from "react-router-dom";
-import { Navigate } from "react-router-dom";
-import { getUser } from "../services/useServices";
+import { useState } from "react";
+import { signup } from "../../Services/userServices";
 
-const signupSchema = z
+const schema = z
   .object({
     name: z
       .string()
-      .min(3, { message: "Name should be at least 3 characters" }),
-    email: z.string().email({ message: "Please enter valid email" }),
-    password: z
+      .min(8, { message: "Name should be at least 3 characters." }),
+    email: z
       .string()
-      .min(8, { message: "Password must be at least 8 characters" }),
+      .email({ message: "Please enter valid email address" })
+      .min(5),
+    password: z.string().min(8, { message: "Please enter at least 8 digit " }),
     confirmPassword: z.string(),
     address: z
       .string()
-      .min(15, { message: "Address must be at least 15 characters" }),
+      .min(15, { message: "Address must be at least 15 characters." }),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Confirm Password does not match Password.",
+    message: "Confirm Password does not match Password",
     path: ["confirmPassword"],
   });
 
 const SignupPage = () => {
-  const [profilePic, setProfilePic] = useState(null);
-  const [formError, setFormError] = useState("");
-
-  let navigate = useNavigate();
-
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm({ resolver: zodResolver(signupSchema) });
+  } = useForm({ resolver: zodResolver(schema) });
+
+  const [profile, setProfile] = useState(null);
+  const [formError, setFormError] = useState("");
 
   const onSubmit = async (formData) => {
-    //   console.log(formData);
     try {
-      await signup(formData, profilePic);
-      navigate("/");
+      const { data } = await signup(formData, profile);
+      localStorage.setItem("token", data.token);
+      window.location = "/";
     } catch (err) {
       if (err.response && err.response.status === 400) {
-        //console.log(err.response)
         setFormError(err.response.data.message);
       }
     }
   };
 
-  // console.log(profilePic);
-
-  if (getUser()) {
-    return <Navigate to="/" />;
-  }
   return (
     <section className="align_center form_page">
       <form
@@ -69,16 +59,18 @@ const SignupPage = () => {
         <div className="image_input_section">
           <div className="image_preview">
             <img
-              src={profilePic ? URL.createObjectURL(profilePic) : user}
+              src={profile ? URL.createObjectURL(profile) : user}
               id="file-ip-1-preview"
             />
           </div>
+
           <label htmlFor="file-ip-1" className="image_label">
             Upload Image
           </label>
+
           <input
             type="file"
-            onChange={(e) => setProfilePic(e.target.files[0])}
+            onChange={(e) => setProfile(e.target.files[0])}
             id="file-ip-1"
             className="image_input"
           />
@@ -96,7 +88,7 @@ const SignupPage = () => {
               {...register("name")}
             />
             {errors.name && (
-              <em className="form_errors"> {errors.name.message} </em>
+              <em className="form_error">{errors.name.message}</em>
             )}
           </div>
 
@@ -108,9 +100,9 @@ const SignupPage = () => {
               type="email"
               placeholder="Enter your email address"
               {...register("email")}
-            />
+            />{" "}
             {errors.email && (
-              <em className="form_errors"> {errors.email.message} </em>
+              <em className="form_error">{errors.email.message}</em>
             )}
           </div>
 
@@ -124,42 +116,38 @@ const SignupPage = () => {
               {...register("password")}
             />
             {errors.password && (
-              <em className="form_errors"> {errors.password.message} </em>
+              <em className="form_error">{errors.password.message}</em>
             )}
           </div>
 
           <div>
             <label htmlFor="cpassword">Confirm Password</label>
             <input
-              id="cpassword"
+              id="confirmPassword"
               className="form_text_input"
               type="password"
               placeholder="Enter confirm password"
               {...register("confirmPassword")}
             />
             {errors.confirmPassword && (
-              <em className="form_errors">
-                {" "}
-                {errors.confirmPassword.message}{" "}
-              </em>
+              <em className="form_error">{errors.confirmPassword.message}</em>
             )}
           </div>
 
-          <div className="signup_textareas_section">
+          <div className="signup_textares_section">
             <label htmlFor="address">Delivery Address</label>
             <textarea
               id="address"
               className="input_textarea"
               placeholder="Enter delivery address"
               {...register("address")}
-            />
+            />{" "}
             {errors.address && (
-              <em className="form_errors">{errors.address.message}</em>
+              <em className="form_error">{errors.address.message}</em>
             )}
           </div>
         </div>
-
-        {formError && <em className="form_error">{formError} </em>}
+        {formError && <em className="form_error">{formError}</em>}
         <button className="search_button form_submit" type="submit">
           Submit
         </button>

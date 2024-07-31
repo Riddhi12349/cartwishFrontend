@@ -1,24 +1,25 @@
-import React, { useState, useContext } from "react";
-
-import config from "../../../config.json";
+import React, { useContext, useState, memo } from "react";
 import "./SingleProductPage.css";
 import QuantityInput from "./QuantityInput";
 import { useParams } from "react-router-dom";
 import useData from "../../hooks/useData";
-import Loader from "../../Common/Loader";
-import CartContext from "../../Contexts/CartContext";
-import UserContext from "../../Contexts/UserContext";
+import Loader from "../Table/Loader";
+import CartContext from "../../contexts/CartContext";
+import UserContext from "../../contexts/UserContext";
+import config from "../../config.json";
 
 const SingleProductPage = () => {
+  const [quantity, setQuantity] = useState(1);
+  const [selectedImage, setSelectedImage] = useState(0);
   const { addToCart } = useContext(CartContext);
   const user = useContext(UserContext);
-
-  const [selectedImage, setSelectedImage] = useState(0);
   const { id } = useParams();
 
-  const [quantity, setQuantity] = useState(1);
-
-  const { data: product, error, isLoading } = useData(`/products/${id}`);
+  const {
+    data: product,
+    error,
+    isLoading,
+  } = useData(`/products/${id}`, null, ["product", id]);
   return (
     <section className="align_center single_product">
       {error && <em className="form_error">{error}</em>}
@@ -44,35 +45,26 @@ const SingleProductPage = () => {
               className="single_product_display"
             />
           </div>
-
           <div className="single_product_details">
-            <h1 className="single_product_title"> {product.title} </h1>
-            <p className="single_product_description">
-              {" "}
-              {product.description}{" "}
-            </p>
-            <p className="single_product_price">
-              {" "}
-              ${product.price.toFixed(2)}{" "}
-            </p>
+            <h1 className="single_product_title">{product.title}</h1>
+            <p className="single_product_description">{product.description}</p>
+            <p className="single_product_price">${product.price.toFixed(2)}</p>
 
             {user && (
               <>
-                {" "}
-                <h2 className="quantity_title"> Quantity : </h2>
-                <QuantityInput
-                  quantity={quantity}
-                  setQuantity={setQuantity}
-                  stock={product.stock}
-                />
+                <h2 className="quantity_title">Quantity:</h2>
+                <div className="align_center quantity_input">
+                  <QuantityInput
+                    quantity={quantity}
+                    setQuantity={setQuantity}
+                    stock={product.stock}
+                  />
+                </div>
                 <button
                   className="search_button add_cart"
-                  onClick={() => {
-                    addToCart(product, quantity);
-                  }}
+                  onClick={() => addToCart(product, quantity)}
                 >
-                  {" "}
-                  Add to Cart{" "}
+                  Add To Cart
                 </button>
               </>
             )}
@@ -83,4 +75,4 @@ const SingleProductPage = () => {
   );
 };
 
-export default SingleProductPage;
+export default memo(SingleProductPage);

@@ -1,22 +1,26 @@
 import React from "react";
 import "./MyOrderPage.css";
-import Table from "../Common/Table";
-import useData from "../hooks/useData";
-import Loader from "../Common/Loader";
+import Table from "./../Table/Table";
+import useData from "../../hooks/useData";
+import Loader from "../Table/Loader";
 
 const MyOrderPage = () => {
-  const { data: orders, error, isLoading } = useData("/order");
+  const {
+    data: orders,
+    error,
+    isLoading,
+  } = useData("/order", null, ["myorders"], 1 * 60 * 1000);
+
   const getProductString = (order) => {
-    const productStringArr = order.products.map(
+    const productStingArr = order.products.map(
       (p) => `${p.product.title}(${p.quantity})`
     );
-    return productStringArr.join(", ");
+    return productStingArr.join(", ");
   };
-
   return (
-    <section className="align_center myorder_page">
-      {isLoading && <Loader />}
+    <section className="align_center my_order_page">
       {error && <em className="form_error">{error}</em>}
+      {isLoading && <Loader />}
       {orders && (
         <Table headings={["Order", "Products", "Total", "Status"]}>
           <tbody>
@@ -25,7 +29,6 @@ const MyOrderPage = () => {
                 <td>{index + 1}</td>
                 <td>{getProductString(order)}</td>
                 <td>${order.total}</td>
-
                 <td>{order.status}</td>
               </tr>
             ))}
@@ -35,5 +38,4 @@ const MyOrderPage = () => {
     </section>
   );
 };
-
 export default MyOrderPage;

@@ -1,5 +1,5 @@
 import apiClient from "../utils/api-client";
 
-export default function getSuggestionsAPT(search) {
+export function getSuggestionAPI(search) {
   return apiClient.get(`/products/suggestions?search=${search}`);
 }

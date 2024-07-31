@@ -1,26 +1,19 @@
-import React, { useState } from "react";
-import { useForm } from "react-hook-form";
+import React, { useRef, useState } from "react";
+import "./LoginPage.css";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { login } from "../services/useServices";
-import { Navigate, useLocation } from "react-router-dom";
-import { getUser } from "../services/useServices";
-
-import "./LogInPage.css";
+import { useForm } from "react-hook-form";
+import { login } from "../../Services/userServices";
 
 const schema = z.object({
   email: z
     .string()
-    .email({ message: "Please enter valid email address. " })
-    .min(3),
-  password: z
-    .string()
-    .min(8, { message: "Password must be at least 8 characters. " }),
+    .email({ message: "Please enter valid email address" })
+    .min(5),
+  password: z.string().min(8, { message: "Please enter at least 8 digit " }),
 });
-const LogInPage = () => {
+const LoginPage = () => {
   const [formError, setFormError] = useState("");
-  const location = useLocation();
-  console.log(location);
 
   const {
     register,
@@ -28,15 +21,11 @@ const LogInPage = () => {
     formState: { errors },
   } = useForm({ resolver: zodResolver(schema) });
 
-  // console.log(formState.errors);
-
   const onSubmit = async (formData) => {
-    //console.log(formData);
     try {
-      await login(formData);
-
-      const { state } = location;
-      window.location = state ? state.form : "/";
+      const { data } = await login(formData);
+      localStorage.setItem("token", data.token);
+      window.location = "/";
     } catch (err) {
       if (err.response && err.response.status === 400) {
         setFormError(err.response.data.message);
@@ -44,49 +33,44 @@ const LogInPage = () => {
     }
   };
 
-  if (getUser()) {
-    return <Navigate to="/" />;
-  }
   return (
     <section className="align_center form_page">
       <form className="authentication_form" onSubmit={handleSubmit(onSubmit)}>
-        <h2>Login Form </h2>
+        <h2>Login Form</h2>
         <div className="form_inputs">
           <div>
-            <label htmlFor="email"> Email </label>
+            <label htmlFor="email">Email</label>
             <input
               type="email"
               id="email"
               className="form_text_input"
-              placeholder="Enter your email address"
+              placeholder="Enter Your Email"
               {...register("email")}
             />
             {errors.email && (
-              <em className="form_error"> {errors.email.message} </em>
+              <em className="form_error">{errors.email.message}</em>
             )}
           </div>
           <div>
-            <label htmlFor="password"> Password </label>
+            <label htmlFor="password">Password</label>
             <input
               type="password"
               id="password"
               className="form_text_input"
-              placeholder="Enter your password"
+              placeholder="Enter Your Password"
               {...register("password")}
-            />
+            />{" "}
             {errors.password && (
               <em className="form_error">{errors.password.message}</em>
             )}
           </div>
-          {formError && <em className="form_error"> {formError}</em>}
+          {formError && <em className="form_error">{formError}</em>}
           <button type="submit" className="search_button form_submit">
-            {" "}
-            Submit{" "}
+            Submit
           </button>
         </div>
       </form>
     </section>
   );
 };
-
-export default LogInPage;
+export default LoginPage;

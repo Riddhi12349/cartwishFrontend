@@ -7,5 +7,4 @@ const setAuthToken = (token) => {
     delete apiClient.defaults.headers.common["x-auth-token"];
   }
 };
-
 export default setAuthToken;
